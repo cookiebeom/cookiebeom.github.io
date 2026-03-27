@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>OA流程调整申请深度分析报告 | 全维度可视化</title>
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f2f6;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            padding: 30px 24px;
+            color: #1e2a3e;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72, #2a5f8a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+        }
+        .sub {
+            color: #4a627a;
+            border-left: 4px solid #2c7cb6;
+            padding-left: 18px;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+            border: 1px solid #e6edf4;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .card-header {
+            padding: 1.2rem 1.8rem 0.4rem 1.8rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: #fefefe;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .badge {
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #1e5a88;
+        }
+        .chart-container {
+            width: 100%;
+            height: 320px;
+            padding: 8px 8px 0 8px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem 1.5rem;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #eef2f6;
+        }
+        .stat-number {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1e4b6e;
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #5b6e8c;
+            margin-top: 8px;
+        }
+        .insight-note {
+            background: #fefce8;
+            border-left: 4px solid #eab308;
+            padding: 12px 18px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #854d0e;
+        }
+        .timeline-insight {
+            background: #f0f6fa;
+            border-radius: 20px;
+            padding: 14px 20px;
+            margin: 16px 24px 24px 24px;
+            font-size: 0.85rem;
+            border-left: 5px solid #e67e22;
+            color: #2c3e50;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .insight-text {
+            flex: 1;
+        }
+        .stat-tag {
+            background: white;
+            border-radius: 32px;
+            padding: 4px 12px;
+            font-weight: 600;
+            color: #e67e22;
+            margin-right: 12px;
+            font-size: 0.75rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 32px;
+            color: #6f8faa;
+            font-size: 0.75rem;
+            border-top: 1px solid #dce5ef;
+            padding-top: 24px;
+        }
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .card-header {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 OA流程调整申请深度分析报告</h1>
+    <div class="sub">数据周期：2025年7月 — 2026年3月 (共295条调整申请) | 基于真实业务数据洞察</div>
+
+    <!-- 关键指标卡片 -->
+    <div class="stats-row">
+        <div class="stat-card"><div class="stat-number">295</div><div class="stat-label">📋 总调整申请数</div></div>
+        <div class="stat-card"><div class="stat-number">228</div><div class="stat-label">✅ 已通过 (77.3%)</div></div>
+        <div class="stat-card"><div class="stat-number">33</div><div class="stat-label">❌ 已拒绝 (11.2%)</div></div>
+        <div class="stat-card"><div class="stat-number">31</div><div class="stat-label">↩️ 已撤回 (10.5%)</div></div>
+        <div class="stat-card"><div class="stat-number">3</div><div class="stat-label">⏳ 审批中 (1.0%)</div></div>
+    </div>
+
+    <!-- 全局洞察摘要 -->
+    <div class="insight-note">
+        💡 <strong>核心洞察</strong> ：每月调整申请高峰期集中在11月~次年1月及3月，反映财年末/年初业务规则与人员变动密集。<br>
+        🔄 人员/组织变动是调整第一驱动力（占比约35%），审批人调整占所有调整类别的34%；高频流程“物料报损申请”迭代26次，显示核心业务流程复杂性及持续优化需求。
+    </div>
+
+    <!-- 图表网格 -->
+    <div class="grid">
+        <!-- 月度申请趋势 -->
+        <div class="card">
+            <div class="card-header">📈 月度申请趋势 <span>2025.07 - 2026.03</span></div>
+            <div id="chart-monthly" class="chart-container"></div>
+        </div>
+        <!-- 申请状态分布 -->
+        <div class="card">
+            <div class="card-header">🥧 申请状态分布 <span>通过率77.3%</span></div>
+            <div id="chart-status" class="chart-container"></div>
+        </div>
+        <!-- 调整类别占比 -->
+        <div class="card">
+            <div class="card-header">⚙️ 调整类别分布 <span>业务调整重点</span></div>
+            <div id="chart-category" class="chart-container"></div>
+        </div>
+        <!-- 调整原因分类（深层根因） -->
+        <div class="card">
+            <div class="card-header">🎯 调整原因分类 <span>根因分析</span></div>
+            <div id="chart-reason" class="chart-container"></div>
+        </div>
+        <!-- 被调整最频繁的流程TOP10 -->
+        <div class="card">
+            <div class="card-header">🔥 高频调整流程TOP10 <span>调整次数</span></div>
+            <div id="chart-top-process" class="chart-container"></div>
+        </div>
+        <!-- 发起调整最多的部门TOP10 -->
+        <div class="card">
+            <div class="card-header">🏢 频繁申请调整部门TOP10 <span>需求主动方</span></div>
+            <div id="chart-top-dept" class="chart-container"></div>
+        </div>
+    </div>
+
+    <!-- 标杆流程演变：物料报损申请 优化版（全宽卡片，增强时间线） -->
+    <div class="card full-width">
+        <div class="card-header">
+            ⏳ 标杆流程演变轨迹 —— 「物料报损申请」 
+            <span class="badge">26次调整 | 业务复杂性风向标</span>
+        </div>
+        <div id="timeline-evolution" class="chart-container" style="height: 480px;"></div>
+        <div class="timeline-insight">
+            <div class="insight-text">
+                <span class="stat-tag">📌 深度洞察</span> 
+                从2025年8月至2026年3月，<strong>物料报损申请</strong>历经7次重大迭代，涵盖<strong>仓库扩张、体系分化、财务规则升级、人员变动</strong>四大维度。
+                每一次调整均映射业务精细化与管理成熟度的提升，也揭示系统亟需<strong>“规则参数化+角色解耦”</strong>以减少重复变更。
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        📌 数据来源：OA流程调整申请汇总表（2025.07-2026.03，共计295条有效申请）<br>
+        🧠 可视化基于ECharts构建 | 反映组织变动、流程优化热点与系统迭代方向<br>
+        ✨ 标杆流程演变模块已升级：展示调整类型、业务驱动力及重要性分级，精准定位流程演进脉络
+    </footer>
+</div>
+
+<script>
+    // ======================== 数据定义 ========================
+    // 1. 月度趋势
+    const months = ['2025-07', '2025-08', '2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02', '2026-03'];
+    const monthlyCounts = [25, 20, 18, 21, 30, 35, 30, 25, 38];
+
+    // 2. 申请状态
+    const statusData = [
+        { name: '已通过', value: 228, color: '#3b82f6' },
+        { name: '已拒绝', value: 33, color: '#ef4444' },
+        { name: '已撤回', value: 31, color: '#f59e0b' },
+        { name: '审批中', value: 3, color: '#8b5cf6' }
+    ];
+
+    // 3. 调整类别
+    const categoryData = [
+        { name: '调整审批人', value: 101 },
+        { name: '优化表单内容', value: 52 },
+        { name: '调整流程', value: 50 },
+        { name: '新增OA', value: 31 },
+        { name: '申请权限', value: 23 },
+        { name: '调整流转条件/节点', value: 28 }
+    ];
+
+    // 4. 调整原因根因分类
+    const reasonData = [
+        { name: '人员/组织变动', value: 35, color: '#5470c6' },
+        { name: '业务规则变更', value: 25, color: '#fac858' },
+        { name: '流程缺陷修复', value: 15, color: '#ee6666' },
+        { name: '精细化需求', value: 10, color: '#73c0de' },
+        { name: '权限需求', value: 8, color: '#3ba272' },
+        { name: '系统协同需求', value: 5, color: '#fc8452' },
+        { name: '用户体验优化', value: 2, color: '#9a60b4' }
+    ];
+
+    // 5. TOP10 流程
+    const processNames = [
+        '物料报损申请', '发函申请(202509版)', '盖章流程', '搬迁申请(202509版)',
+        '物料盘点流程', '区域活动提报申请', '永久闭店申请(202509版)',
+        '对外付款', '运营账号新增&维护申请', '续约申请(202510版)'
+    ];
+    const processCounts = [26, 19, 17, 14, 11, 11, 10, 9, 8, 7];
+
+    // 6. TOP10 部门
+    const deptNames = [
+        '门店分级管理组', '法务组', '应付组', '费用组', '基建流程化组',
+        '总账组', '活动运营组', '收入成本组', '客服组', '门店合规管理组'
+    ];
+    const deptCounts = [32, 25, 21, 17, 14, 13, 12, 11, 10, 7];
+
+    // ======================== 标杆流程演变数据（优化版） ========================
+    const evolutionData = [
+        {
+            date: "2025-08",
+            title: "费用归属字段新增",
+            description: "增加“费用归属”字段，用于区分成本中心，实现财务核算精细化",
+            type: "表单优化",
+            driver: "财务精细化管理",
+            importance: 3
+        },
+        {
+            date: "2025-09",
+            title: "仓库范围扩展",
+            description: "新增“香水柠檬加工中心”仓库选项，支撑新业务板块上线",
+            type: "业务场景扩展",
+            driver: "新业务/新主体",
+            importance: 4
+        },
+        {
+            date: "2025-10",
+            title: "区域仓增补",
+            description: "增加“济南仓”、“西安仓”，满足供应链区域化布局",
+            type: "业务场景扩展",
+            driver: "仓库版图扩张",
+            importance: 3
+        },
+        {
+            date: "2025-11",
+            title: "审批人调整",
+            description: "制单环节审批人变更（人员离职/转岗导致）",
+            type: "审批人变动",
+            driver: "组织/人员变动",
+            importance: 2
+        },
+        {
+            date: "2025-12",
+            title: "体系拆分",
+            description: "增加体系选项（供应链体系/茶叶厂体系），不同体系审批流差异化",
+            type: "流程逻辑调整",
+            driver: "业务板块分化",
+            importance: 5
+        },
+        {
+            date: "2026-02",
+            title: "费用归属规则升级",
+            description: "修改费用归属逻辑，明确非仓库责任的费用归属部门",
+            type: "业务规则变更",
+            driver: "财务合规深化",
+            importance: 4
+        },
+        {
+            date: "2026-03",
+            title: "审批权限二次调整",
+            description: "因组织职责重新划分，再次调整审批人",
+            type: "审批人变动",
+            driver: "组织架构迭代",
+            importance: 3
+        }
+    ];
+
+    const xAxisTimeline = evolutionData.map(item => item.date);
+    const yBase = new Array(evolutionData.length).fill(0);
+    const symbolSizes = evolutionData.map(item => 18 + item.importance * 2.5);
+    const typeColorMap = {
+        "表单优化": "#3b82f6",
+        "业务场景扩展": "#10b981",
+        "审批人变动": "#f59e0b",
+        "流程逻辑调整": "#8b5cf6",
+        "业务规则变更": "#ef4444"
+    };
+    const pointColors = evolutionData.map(item => typeColorMap[item.type] || "#6c757d");
+
+    // ======================== 渲染所有图表 ========================
+    function renderAllCharts() {
+        // 1. 月度趋势（柱状+折线）
+        const monthlyChart = echarts.init(document.getElementById('chart-monthly'));
+        monthlyChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            xAxis: { type: 'category', data: months, axisLabel: { rotate: 30 } },
+            yAxis: { type: 'value', name: '申请数量' },
+            series: [
+                { name: '调整申请数', type: 'bar', data: monthlyCounts, itemStyle: { borderRadius: [6,6,0,0], color: '#5470c6' } },
+                { name: '趋势', type: 'line', smooth: true, data: monthlyCounts, symbol: 'circle', lineStyle: { width: 2, color: '#ee6666' }, itemStyle: { color: '#ee6666' } }
+            ],
+            grid: { containLabel: true, top: 30, bottom: 20 }
+        });
+
+        // 2. 状态饼图
+        const statusChart = echarts.init(document.getElementById('chart-status'));
+        statusChart.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { orient: 'vertical', left: 'left' },
+            series: [{
+                type: 'pie', radius: '55%', center: ['50%', '50%'],
+                data: statusData.map(s => ({ name: s.name, value: s.value })),
+                label: { show: true, formatter: '{b}: {d}%' },
+                color: ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6']
+            }]
+        });
+
+        // 3. 调整类别条形图
+        const categoryChart = echarts.init(document.getElementById('chart-category'));
+        categoryChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            grid: { containLabel: true, left: 110 },
+            xAxis: { type: 'value', name: '调整次数' },
+            yAxis: { type: 'category', data: categoryData.map(c => c.name), axisLabel: { fontWeight: 500 } },
+            series: [{
+                name: '申请数量', type: 'bar', data: categoryData.map(c => c.value),
+                itemStyle: { borderRadius: [0, 8, 8, 0], color: '#2c6e9e' },
+                label: { show: true, position: 'right' }
+            }]
+        });
+
+        // 4. 调整原因分类饼图
+        const reasonChart = echarts.init(document.getElementById('chart-reason'));
+        reasonChart.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { orient: 'vertical', left: 'left', top: 'center' },
+            series: [{
+                type: 'pie', radius: ['40%', '70%'],
+                data: reasonData.map(r => ({ name: r.name, value: r.value })),
+                label: { show: true, formatter: '{b}: {d}%' },
+                color: ['#5470c6', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4']
+            }]
+        });
+
+        // 5. TOP10流程（水平条形）
+        const processChart = echarts.init(document.getElementById('chart-top-process'));
+        processChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            grid: { containLabel: true, left: 140 },
+            xAxis: { type: 'value', name: '调整次数' },
+            yAxis: { type: 'category', data: processNames.slice().reverse(), axisLabel: { fontWeight: 500 } },
+            series: [{
+                name: '调整频次', type: 'bar', data: processCounts.slice().reverse(),
+                itemStyle: { borderRadius: [0, 8, 8, 0], color: '#e76f51' },
+                label: { show: true, position: 'right' }
+            }]
+        });
+
+        // 6. TOP10部门
+        const deptChart = echarts.init(document.getElementById('chart-top-dept'));
+        deptChart.setOption({
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            grid: { containLabel: true, left: 125 },
+            xAxis: { type: 'value', name: '申请次数' },
+            yAxis: { type: 'category', data: deptNames.slice().reverse(), axisLabel: { fontWeight: 500 } },
+            series: [{
+                name: '发起调整数', type: 'bar', data: deptCounts.slice().reverse(),
+                itemStyle: { borderRadius: [0, 8, 8, 0], color: '#2a9d8f' },
+                label: { show: true, position: 'right' }
+            }]
+        });
+
+        // ======================== 7. 标杆流程演变（优化版时间线） ========================
+        const timelineChart = echarts.init(document.getElementById('timeline-evolution'));
+        timelineChart.setOption({
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    if (params.componentType === 'series' && params.dataIndex !== undefined) {
+                        const d = evolutionData[params.dataIndex];
+                        return `<strong>${d.date}</strong><br/>📌 ${d.title}<br/>📄 ${d.description}<br/>🏷️ 类型: ${d.type}<br/>⚙️ 驱动力: ${d.driver}`;
+                    }
+                    return '';
+                },
+                backgroundColor: 'rgba(20,30,45,0.9)',
+                borderColor: '#2c7cb6',
+                borderWidth: 1,
+                textStyle: { color: 'white', fontSize: 12 }
+            },
+            grid: {
+                left: '6%',
+                right: '6%',
+                top: '15%',
+                bottom: '10%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: xAxisTimeline,
+                axisLine: { lineStyle: { color: '#4f7ea0', width: 2 } },
+                axisLabel: { rotate: 30, fontWeight: 'bold', fontSize: 11, margin: 12 },
+                axisTick: { show: true, alignWithLabel: true },
+                name: '调整时间节点',
+                nameLocation: 'middle',
+                nameGap: 40,
+                nameTextStyle: { fontWeight: 'bold', fontSize: 11 }
+            },
+            yAxis: {
+                type: 'value',
+                show: false,
+                min: -0.3,
+                max: 0.3,
+                splitLine: { show: false }
+            },
+            series: [
+                {
+                    name: '时间主线',
+                    type: 'line',
+                    data: yBase,
+                    lineStyle: { width: 2, color: '#2c7cb6', type: 'dashed' },
+                    symbol: 'none',
+                    smooth: false
+                },
+                {
+                    name: '关键调整节点',
+                    type: 'scatter',
+                    data: yBase,
+                    symbolSize: symbolSizes,
+                    itemStyle: {
+                        color: pointColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        shadowBlur: 6,
+                        shadowColor: 'rgba(0,0,0,0.2)'
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        offset: [0, 18],
+                        formatter: function(params) {
+                            const idx = params.dataIndex;
+                            const ev = evolutionData[idx];
+                            return `{time|${ev.date}}  {type|${ev.type}}`;
+                        },
+                        rich: {
+                            time: { fontSize: 10, fontWeight: 'bold', color: '#2b5f8a', backgroundColor: '#eef3fc', padding: [2,6,2,6], borderRadius: 12 },
+                            type: { fontSize: 9, color: '#ffffff', backgroundColor: '#5e8db0', padding: [2,6,2,6], borderRadius: 12 }
+                        },
+                        backgroundColor: 'rgba(245,245,245,0.8)',
+                        borderRadius: 16,
+                        padding: [2, 6, 2, 6]
+                    },
+                    emphasis: { scale: 1.2 }
+                },
+                {
+                    name: '高影响节点',
+                    type: 'effectScatter',
+                    data: yBase.map((val, idx) => evolutionData[idx].importance >= 4 ? val : null).filter(v => v !== null),
+                    symbolSize: 32,
+                    showEffectOn: 'render',
+                    rippleEffect: { brushType: 'stroke', scale: 2.5, period: 4 },
+                    itemStyle: { color: '#e67e22', borderColor: '#fff', borderWidth: 1.5, shadowBlur: 8 },
+                    tooltip: { show: false },
+                    label: { show: false }
+                }
+            ],
+            graphic: evolutionData.map((item, idx) => {
+                const xPercent = (idx / (evolutionData.length - 1)) * 100;
+                let yPos = 92;
+                if (idx % 3 === 1) yPos = 94;
+                if (idx % 3 === 2) yPos = 90;
+                return {
+                    type: 'text',
+                    left: `${xPercent}%`,
+                    top: `${yPos}%`,
+                    style: {
+                        text: `⚡ ${item.driver}`,
+                        fill: '#6f8faa',
+                        fontSize: 9,
+                        fontWeight: 'normal',
+                    },
+                    invisible: idx > 5 ? true : false,
+                    z: 10
+                };
+            }).slice(0,7)
+        });
+    }
+
+    // 页面加载完成渲染所有图表
+    window.addEventListener('load', () => {
+        renderAllCharts();
+        window.addEventListener('resize', () => {
+            const chartIds = ['chart-monthly', 'chart-status', 'chart-category', 'chart-reason', 'chart-top-process', 'chart-top-dept', 'timeline-evolution'];
+            chartIds.forEach(id => {
+                const instance = echarts.getInstanceByDom(document.getElementById(id));
+                if (instance) instance.resize();
+            });
+        });
+    });
+</script>
+</body>
+</html>
