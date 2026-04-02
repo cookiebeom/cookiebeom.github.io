@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流程清单 · 版本更新说明</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --ink: #1a1814;
+    --ink-light: #6b6560;
+    --ink-faint: #b8b4ae;
+    --rule: #e5e2dc;
+    --accent: #2d5a8e;
+    --accent-light: #e8f0f9;
+
+    --add-bg: #edf7ed;
+    --add-border: #4caf50;
+    --add-text: #2e7d32;
+    --change-bg: #fff8e6;
+    --change-border: #f5a623;
+    --change-text: #7c5000;
+    --delete-bg: #fdecea;
+    --delete-border: #e53935;
+    --delete-text: #b71c1c;
+    --none-bg: #f5f5f5;
+    --none-border: #bdbdbd;
+    --none-text: #757575;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    line-height: 1.75;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    max-width: 860px;
+    margin: 0 auto 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .cover-eyebrow {
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .cover-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 700;
+    line-height: 1.18;
+    color: var(--ink);
+    letter-spacing: -.01em;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+  .cover-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ── LEGEND ── */
+  .legend {
+    max-width: 860px;
+    margin: 0 auto 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .legend-label { font-size: 11px; color: var(--ink-faint); letter-spacing: .08em; text-transform: uppercase; margin-right: 4px; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+  }
+  .tag-add    { background: var(--add-bg);    border-left-color: var(--add-border);    color: var(--add-text);    }
+  .tag-change { background: var(--change-bg); border-left-color: var(--change-border); color: var(--change-text); }
+  .tag-delete { background: var(--delete-bg); border-left-color: var(--delete-border); color: var(--delete-text); }
+  .tag-none   { background: var(--none-bg);   border-left-color: var(--none-border);   color: var(--none-text);   }
+
+  /* ── SECTION ── */
+  .section {
+    max-width: 860px;
+    margin: 0 auto 56px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--rule);
+    line-height: 1;
+    user-select: none;
+  }
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+    flex: 1;
+    padding-bottom: 8px;
+  }
+  .section-count {
+    font-size: 11px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── PROCESS ITEMS ── */
+  .process-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .process-item {
+    background: var(--surface);
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+    transition: box-shadow .15s ease;
+  }
+  .process-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+
+  /* Items with no changes = compact */
+  .process-item.compact .item-head { padding: 10px 16px; }
+  .process-item.compact .item-body { display: none; }
+
+  .item-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 10px;
+    cursor: default;
+  }
+  .item-index {
+    font-size: 11px;
+    color: var(--ink-faint);
+    min-width: 26px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .item-name {
+    flex: 1;
+    font-weight: 500;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .item-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .item-body {
+    padding: 0 16px 14px 54px;
+    border-top: 1px solid var(--rule);
+    margin-top: 2px;
+    padding-top: 10px;
+  }
+
+  /* change rows */
+  .change-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 5px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink-light);
+    border-bottom: 1px dashed var(--rule);
+  }
+  .change-row:last-child { border-bottom: none; }
+  .change-circle {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 9.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3px;
+  }
+  .cc-add    { background: var(--add-bg);    color: var(--add-text);    }
+  .cc-change { background: var(--change-bg); color: var(--change-text); }
+  .cc-delete { background: var(--delete-bg); color: var(--delete-text); }
+  .change-text-body { flex: 1; }
+
+  /* simple-list mode (费控/飞书) */
+  .simple-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .simple-item {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 10px 14px;
+    font-size: 13px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--ink-light);
+  }
+  .simple-item .item-index { min-width: 20px; }
+
+  /* image placeholder */
+  .img-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0f4f8;
+    border: 1px dashed #aab;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #667;
+    margin-top: 6px;
+  }
+
+  /* stats bar */
+  .stats {
+    max-width: 860px;
+    margin: 0 auto 48px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px 28px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label { font-size: 11px; color: var(--ink-faint); }
+
+  @media (max-width: 600px) {
+    .item-body { padding-left: 16px; }
+    .stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">内部文件 · 流程管理</div>
+  <div class="cover-title">流程清单<br>版本更新说明</div>
+  <div class="cover-meta">
+    <span>📂 系统范围：七巧 · 费控 · 飞书</span>
+    <span>📋 流程总数：88 项</span>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">变更类型</span>
+  <span class="tag tag-add">➕ 新增流程 / 流转条件</span>
+  <span class="tag tag-change">✏️ 更改流程</span>
+  <span class="tag tag-delete">🗑️ 删除流程</span>
+  <span class="tag tag-none">— 无变化</span>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-number">59</div><div class="stat-label">七巧系统流程</div></div>
+  <div class="stat"><div class="stat-number">11</div><div class="stat-label">费控系统流程</div></div>
+  <div class="stat"><div class="stat-number">19</div><div class="stat-label">飞书系统流程</div></div>
+  <div class="stat"><div class="stat-number">21</div><div class="stat-label">有变更条目</div></div>
+  <div class="stat"><div class="stat-number">17</div><div class="stat-label">无变化条目（七巧）</div></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  一、七巧                                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">一</div>
+    <div class="section-title">七巧系统</div>
+    <div class="section-count">共 59 项</div>
+  </div>
+  <div class="process-list">
+
+    <!-- 1-27 无变化条目（简洁展示，无标注则默认无变化） -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">01</div>
+        <div class="item-name">法务合规事务申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">02</div>
+        <div class="item-name">变更合作期限申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">03</div>
+        <div class="item-name">合同模版调整及发布</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">04</div>
+        <div class="item-name">合同作废流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">05</div>
+        <div class="item-name">印章外借申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">06</div>
+        <div class="item-name">销售订单盖章申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">07</div>
+        <div class="item-name">茶叶厂盘点汇报</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">08</div>
+        <div class="item-name">茶叶厂商品建档</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">09</div>
+        <div class="item-name">更新供应商 / 客户信息</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">10</div>
+        <div class="item-name">供应链其他需求</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">11</div>
+        <div class="item-name">库存调整申请单</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">12</div>
+        <div class="item-name">新建物料档案</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">13</div>
+        <div class="item-name">物料报损申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">14</div>
+        <div class="item-name">物料呆滞提报</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">15</div>
+        <div class="item-name">物料盘点流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">16</div>
+        <div class="item-name">物料变更申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">17</div>
+        <div class="item-name">发券流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">18</div>
+        <div class="item-name">工资发放流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">19</div>
+        <div class="item-name">茶叶厂工资发放</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">20</div>
+        <div class="item-name">立店工程工资发放审批</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">21</div>
+        <div class="item-name">固定资产报废申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">22</div>
+        <div class="item-name">零星采购（非门店订货）</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">23</div>
+        <div class="item-name">设计需求确认</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">24</div>
+        <div class="item-name">补偿金发放</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">25</div>
+        <div class="item-name">固定资产处置流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">26</div>
+        <div class="item-name">固定资产盘点流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">27</div>
+        <div class="item-name">固定资产调拨申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 28 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">28</div>
+        <div class="item-name">新店外卖上线</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 29 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">29</div>
+        <div class="item-name">新店开业验收</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改审批</span>
+          <span class="tag tag-add">➕ 新增流转条件</span>
+          <span class="tag tag-add">➕ 新增流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">审批流程更改：提交表单后由「营运主管审批」变更为「部门主管审批」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件：营运优化审批后，若是香港档，则直接进入「信息审批」和「区域外卖专家恢复外卖平台」组成的包容网关；若不是香港档，则需在「运营支持(pos&小程序菜单下发)」后进入包容网关。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流程：由「信息组DMS维护门店信息」变更为「信息审批」与「区域外卖专家恢复外卖平台」组成的包容网关。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 30 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">30</div>
+        <div class="item-name">新店开业活动</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流转条件</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件：由部门主管审批后，若参与活动，则「基建组配置门店开业活动」；若不参与活动，则转交「大区经理审批」。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 31 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">31</div>
+        <div class="item-name">永久闭店申请</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改流程</span>
+          <span class="tag tag-add">➕ 新增流程 ×2</span>
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">将「法务专员填写门店签约信息」流程向前移动至关闭门店系统的并行网关中。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">「渠道关闭团购&小程序平台&删除菜单」后新增「抖音门店解绑」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">进入超时≥5天未打拆分支后，新增与「区域营运支持经理类型确认（超时处理）」并行的「印章管理员盖章」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">删除与「区域营运支持专员（扫描上传+话术+线下快递）」并行的「财务盖章」流程。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 32 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">32</div>
+        <div class="item-name">取消闭店申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 33 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">33</div>
+        <div class="item-name">直营闭店申请</div>
+        <div class="item-tags">
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+          <span class="tag tag-change">✏️ 更改流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">闭店日期到达前，删除「税务会计」「确认飞书、企微、乐才、研习社账号关闭情况」「注销双证营业执照食安证」三个节点。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">闭店日期到达后，并行网关结构变更（详见附图）。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 34 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">34</div>
+        <div class="item-name">转让申请</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改流程 ×2</span>
+          <span class="tag tag-add">➕ 新增流程 ×2</span>
+          <span class="tag tag-add">➕ 新增流转条件</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">将「法务专员提供签约信息」向前移动至与「区域营运支持专员填写欠款金额…」并行的网关中。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">原处于并行网关内的「财务专员审批费用信息」向后移动至并行网关汇合后，改为串联流转。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">在「财务专员审批费用信息」后，新增「财务主管审批费用信息」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件：「财务确认缴费凭证」后判断是否为特殊转让；若是，需「营运主管上传终止合作协议签署」后才能进行「营运主管上传签署合作协议与双证」；否则直接进入。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">进入中后段大型并行网关后，新增与基建、外卖、信息等并行的「到店组审核与变更支付宝小程序收款…」流程。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 35 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">35</div>
+        <div class="item-name">歇业申请</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流转条件 ×4</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">填写表单后，依据歇业时间交由不同审批人：&gt;45天需「营运支持经理审批」后再进入「营运主管审批」，否则直接进入「营运主管审批」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">营运主管审批后，依据歇业时间分流：&gt;3天需「大区经理审批」后再进入「营支主管审批」，否则直接进入「营支主管审批」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">营运支持经理审批后，若为香港门店则需「香港门店由信息部执行系统关闭」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">营支经理审批恢复营业后，若为香港门店则需「香港门店由信息部执行系统恢复」。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 36 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">36</div>
+        <div class="item-name">搬迁申请</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改流程 ×2</span>
+          <span class="tag tag-add">➕ 新增流程</span>
+          <span class="tag tag-change">✏️ 网关变更</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">将「法务确认合同信息」向后移动至与「营支专员填写欠款金额&审核店名」并行的网关中。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">原处于并行网关内的「财务检查相关欠款」向后移动至并行网关汇合后，改为串联流转。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">在「法务确认协议签署及文件上传情况」后新增「开发文员拉群」与「筹建审批」并行流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">督导验收后并行网关结构变更（详见附图）。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 37 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">37</div>
+        <div class="item-name">续约申请</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改流程 ×3</span>
+          <span class="tag tag-add">➕ 新增流程</span>
+          <span class="tag tag-add">➕ 新增流转条件</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">督导提单后「开发审批点位信息」移至「大区经理确认续约」后分支，并在其后新增「开发支持主管」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">「区域营运支持填写欠款」变更为「财务部（填写需缴纳款项）」后「营运支持审批」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">在进入缴费环节前，新增「营支经理确认续约」及「营运主管与加盟商洽谈」节点。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增「不续约」判定分支，明确不续约时由「营支支持组发送不续约通知」的任务节点。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">取消「搬迁/原址」手工连线，整合为「翻新流程」和「搬迁流程」两个标准化子流程模块。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 38 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">38</div>
+        <div class="item-name">发函申请</div>
+        <div class="item-tags">
+          <span class="tag tag-change">✏️ 更改流程 ×2</span>
+          <span class="tag tag-add">➕ 新增流程</span>
+          <span class="tag tag-add">➕ 新增流转条件 ×3</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">稽核提单后，「营优审批」更改为「稽核与客服部审批」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件：「大区经理审核」后，若为解除函，则交由「区域营运负责人」再转「营支专员上传盖章函件及发函话术」；否则直接至「营支专员上传盖章函件及发函话术」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">在营支/稽核处罚函和警告函分支中，进入后续实质处理前均增设「指派督导」节点。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件（警告函视角）：营优客服发送函件后，若为大区警告函则直接进入「督导回传整改」；否则先「指派督导」再进入。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">「法务归档函件」更改为「营支专员登记」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">新增流转条件（处罚函视角）：营优客服发送后，若为大区处罚函则直接进入「督导上传缴款凭证截图」；若为营支/稽核处罚函则先「指派督导」再进入。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">等待停业结束日期前，延伸警告函/处罚函条件分支：非大区函件需经「指派督导」节点再流转。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 39 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">39</div>
+        <div class="item-name">专项函件特殊报备</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 40 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">40</div>
+        <div class="item-name">函件特批申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 41 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">41</div>
+        <div class="item-name">翻新申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 42 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">42</div>
+        <div class="item-name">老开新资质申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 43 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">43</div>
+        <div class="item-name">门店档位变更申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 44 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">44</div>
+        <div class="item-name">菜单调整申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 45 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">45</div>
+        <div class="item-name">门店活动申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 46 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">46</div>
+        <div class="item-name">门店外卖活动申请</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流转条件</span>
+          <span class="tag tag-add">➕ 新增流程 ×2</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">表单提交后，按活动规模分为「单店外卖活动」与「区域（城市级）外卖活动」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">单店外卖活动流程变更为需满足「区域外卖专家审核」且同时为「新店」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">单店外卖活动在「中台运营专家审批」后新增「全国外卖负责人审批」流程。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 47 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">47</div>
+        <div class="item-name">区域活动提报申请</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流程</span>
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+          <span class="tag tag-change">✏️ 更改流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">「方案可配置性审核」前新增「平台运营审核」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">「方案可配置性审核」后删除「到店组&到家组」「运营支持」「运营主管」三个流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">原「运营支持」流程修改为由「基建组」「私域」「外卖专家」组成的并行网关。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 48 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">48</div>
+        <div class="item-name">库存变动申请（门店）</div>
+        <div class="item-tags">
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">删除「信息部反馈BI处理结果」及之后所有节点，直接结束。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 49 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">49</div>
+        <div class="item-name">运营账号新增 & 维护申请</div>
+        <div class="item-tags">
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+          <span class="tag tag-change">✏️ 更改流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">管理者账号权限变更中，删除依据提单选择判断e签分支，直接进入包容网关。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">并行网关「巡店助手、监控、林里研习社、食亨」修改为包容网关「食亨（督导&主管）、巡店助手、监控、林里研习社、大众/美团、抖音、企迈、外卖」。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 50 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">50</div>
+        <div class="item-name">门店平台信息变更申请</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流程 ×2</span>
+          <span class="tag tag-change">✏️ 更改流程 ×2</span>
+          <span class="tag tag-add">➕ 新增流转条件</span>
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">直营门店修改收款信息分支中，提交表单后新增大区经理审批；其他情况下在部门主管审批后新增大区经理审批。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">「基建修改食亨门店标签」修改为「运营修改食亨门店标签」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-change">改</div>
+          <div class="change-text-body">「运营支持修改平台信息」修改为「信息部修改食亨」。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">加盟门店修改收款信息分支中，法务专员审批后若是「本人换卡」则直接进入并行网关；否则进入「主管上传三方协议（E签加盟商信息表）」节点。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">加盟门店修改收款信息分支中，法务专员审批后删除「区域营运支持」流程。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 51 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">51</div>
+        <div class="item-name">新店首批物料增减申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 52 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">52</div>
+        <div class="item-name">订货集市_转移信用表流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 53 无变化 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">53</div>
+        <div class="item-name">门店电视投屏开通申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+
+    <!-- 54 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">54</div>
+        <div class="item-name">门店平台分账申请</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流程 ×2</span>
+          <span class="tag tag-delete">🗑️ 删除流程</span>
+          <span class="tag tag-add">➕ 新增流转条件</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">「大区经理审批」前新增「部门确认」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">「营运支持经理审批」前新增「财务审批」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-delete">删</div>
+          <div class="change-text-body">删除「运营部运维组主管审批」流程。</div>
+        </div>
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">营运支持经理审批后进入包容网关：若分账平台为小程序，则激活「小程序切换企迈订单绑定设备」节点，同时「基建收取分账设备编码&食亨解绑分账渠道ID」，否则不激活。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 55 -->
+    <div class="process-item">
+      <div class="item-head">
+        <div class="item-index">55</div>
+        <div class="item-name">转直管流程</div>
+        <div class="item-tags">
+          <span class="tag tag-add">➕ 新增流程</span>
+        </div>
+      </div>
+      <div class="item-body">
+        <div class="change-row">
+          <div class="change-circle cc-add">增</div>
+          <div class="change-text-body">直营大区审批后，新增操作并行网关：「渠道运营变更门店（小程序&团购）收款信息」「基建运营变更门店（美&饿）收款信息」「外卖运营变更门店（京东）收款信息」。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 56-60 -->
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">56</div>
+        <div class="item-name">业绩调整流程</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">57</div>
+        <div class="item-name">外部售后申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">58</div>
+        <div class="item-name">售后赔付申请</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">59</div>
+        <div class="item-name">临时工程申请（非设备问题）</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+    <div class="process-item compact">
+      <div class="item-head">
+        <div class="item-index">60</div>
+        <div class="item-name">门店维修申请（非设备问题）</div>
+        <div class="item-tags"><span class="tag tag-none">无变化</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  二、费控                                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">二</div>
+    <div class="section-title">费控系统</div>
+    <div class="section-count">共 11 项</div>
+  </div>
+  <div class="simple-grid">
+    <div class="simple-item"><div class="item-index">01</div>对外付款</div>
+    <div class="simple-item"><div class="item-index">02</div>批量付款</div>
+    <div class="simple-item"><div class="item-index">03</div>盖章流程</div>
+    <div class="simple-item"><div class="item-index">04</div>物料补贴流程</div>
+    <div class="simple-item"><div class="item-index">05</div>物料领用流程</div>
+    <div class="simple-item"><div class="item-index">06</div>员工报销</div>
+    <div class="simple-item"><div class="item-index">07</div>备用金申请</div>
+    <div class="simple-item"><div class="item-index">08</div>备用金还款</div>
+    <div class="simple-item"><div class="item-index">09</div>预算调整</div>
+    <div class="simple-item"><div class="item-index">10</div>出差申请单</div>
+    <div class="simple-item"><div class="item-index">11</div>营销项目立项</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ -->
+<!--  三、飞书                                  -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">三</div>
+    <div class="section-title">飞书系统</div>
+    <div class="section-count">共 19 项</div>
+  </div>
+  <div class="simple-grid">
+    <div class="simple-item"><div class="item-index">01</div>固定资产采购申请</div>
+    <div class="simple-item"><div class="item-index">02</div>固定资产租赁申请</div>
+    <div class="simple-item"><div class="item-index">03</div>固定资产归还申请</div>
+    <div class="simple-item"><div class="item-index">04</div>固定资产转移申请</div>
+    <div class="simple-item"><div class="item-index">05</div>固定资产领用申请</div>
+    <div class="simple-item"><div class="item-index">06</div>开通系统账号与相关权限申请</div>
+    <div class="simple-item"><div class="item-index">07</div>社保公积金付款申请</div>
+    <div class="simple-item"><div class="item-index">08</div>存货跌价审批</div>
+    <div class="simple-item"><div class="item-index">09</div>科目调整申请</div>
+    <div class="simple-item"><div class="item-index">10</div>账套开立申请</div>
+    <div class="simple-item"><div class="item-index">11</div>购买理财申请</div>
+    <div class="simple-item"><div class="item-index">12</div>反结账申请</div>
+    <div class="simple-item"><div class="item-index">13</div>银行账户异动申请</div>
+    <div class="simple-item"><div class="item-index">14</div>公司新设/变更/注销申请</div>
+    <div class="simple-item"><div class="item-index">15</div>资金调拨申请</div>
+    <div class="simple-item"><div class="item-index">16</div>预算额度调整申请</div>
+    <div class="simple-item"><div class="item-index">17</div>税费审批流程</div>
+    <div class="simple-item"><div class="item-index">18</div>相机外借申请</div>
+    <div class="simple-item"><div class="item-index">19</div>用车申请</div>
+  </div>
+</div>
+
+</body>
+</html>
