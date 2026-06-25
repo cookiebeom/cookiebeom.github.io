@@ -111,6 +111,47 @@
       font-size: 13px;
       flex-wrap: wrap;
     }
+    .quick-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .range-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .range-btn {
+      border: 1px solid #d8dee8;
+      border-radius: 999px;
+      background: #fff;
+      color: #344054;
+      padding: 7px 11px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .range-btn.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 600;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #344054;
+      font-size: 13px;
+      user-select: none;
+    }
+    .toggle input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+    }
     .reset {
       border: 0;
       border-radius: 6px;
@@ -159,6 +200,25 @@
     .title-cell {
       min-width: 360px;
       font-weight: 520;
+    }
+    details summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+    .detail {
+      margin-top: 9px;
+      color: var(--muted);
+      font-weight: 400;
+      background: #f7f9fc;
+      border: 1px solid #edf0f5;
+      border-radius: 6px;
+      padding: 9px 10px;
+    }
+    .detail a {
+      word-break: break-all;
     }
     .tag {
       display: inline-block;
@@ -212,7 +272,7 @@
   <header>
     <div class="header-inner">
       <h1>法规动态历史归档</h1>
-      <p class="subtitle">公开演示版，仅保留法规标题、来源、发布时间、主题、相关性和原文链接。</p>
+      <p class="subtitle">公开演示版，仅保留法规标题、来源、发布时间、主题、相关性和原文链接。最后更新：2026-06-25 10:26</p>
     </div>
   </header>
   <main>
@@ -233,6 +293,15 @@
       <div class="meta-row">
         <span>数据来自公开法规网站，按最近 500 条入库记录展示。</span>
         <button class="reset" id="reset" type="button">清空筛选</button>
+      </div>
+      <div class="quick-row">
+        <div class="range-buttons" aria-label="日期快捷筛选">
+          <button class="range-btn active" type="button" data-range="all">全部</button>
+          <button class="range-btn" type="button" data-range="7">近7日</button>
+          <button class="range-btn" type="button" data-range="30">近30日</button>
+          <button class="range-btn" type="button" data-range="month">本月</button>
+        </div>
+        <label class="toggle"><input id="show-low" type="checkbox">显示低相关</label>
       </div>
     </section>
 
@@ -267,10 +336,13 @@
     const rows = document.getElementById('rows');
     const empty = document.getElementById('empty');
     const reset = document.getElementById('reset');
+    const showLow = document.getElementById('show-low');
+    const rangeButtons = [...document.querySelectorAll('.range-btn')];
     const statCount = document.getElementById('stat-count');
     const statHigh = document.getElementById('stat-high');
     const statMid = document.getElementById('stat-mid');
     const statLow = document.getElementById('stat-low');
+    let activeRange = 'all';
 
     const uniq = arr => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-CN'));
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
@@ -279,13 +351,31 @@
     for (const value of uniq(data.flatMap(item => item.themes || []))) theme.add(new Option(value, value));
     for (const value of uniq(data.map(item => item.source))) source.add(new Option(value, value));
 
+    function inDateRange(item) {
+      if (activeRange === 'all') return true;
+      if (!item.published_at) return false;
+      const published = new Date(item.published_at + 'T00:00:00');
+      if (Number.isNaN(published.getTime())) return false;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (activeRange === 'month') {
+        return published.getFullYear() === today.getFullYear() && published.getMonth() === today.getMonth();
+      }
+      const days = Number(activeRange);
+      const start = new Date(today);
+      start.setDate(start.getDate() - days + 1);
+      return published >= start && published <= today;
+    }
+
     function matches(item) {
       const kw = q.value.trim().toLowerCase();
       const text = [item.title, item.source, ...(item.themes || [])].join(' ').toLowerCase();
+      if (!showLow.checked && item.relevance === '低') return false;
       return (!kw || text.includes(kw))
         && (!theme.value || (item.themes || []).includes(theme.value))
         && (!relevance.value || item.relevance === relevance.value)
-        && (!source.value || item.source === source.value);
+        && (!source.value || item.source === source.value)
+        && inDateRange(item);
     }
 
     function render() {
@@ -295,7 +385,17 @@
           <td>${esc(item.published_at)}</td>
           <td>${(item.themes || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</td>
           <td><span class="rel ${relClass(item.relevance)}">${esc(item.relevance || '未分级')}</span></td>
-          <td class="title-cell"><a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title)}</a></td>
+          <td class="title-cell">
+            <details>
+              <summary>${esc(item.title)}</summary>
+              <div class="detail">
+                <div>来源：${esc(item.source)}</div>
+                <div>发布时间：${esc(item.published_at || '未标注')}</div>
+                <div>主题：${(item.themes || []).map(esc).join('、') || '未分类'}</div>
+                <div>原文：<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.url)}</a></div>
+              </div>
+            </details>
+          </td>
           <td>${esc(item.source)}</td>
         </tr>
       `).join('');
@@ -311,9 +411,19 @@
       theme.value = '';
       relevance.value = '';
       source.value = '';
+      showLow.checked = false;
+      activeRange = 'all';
+      rangeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.range === activeRange));
       render();
     });
-    [q, theme, relevance, source].forEach(el => el.addEventListener('input', render));
+    rangeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeRange = btn.dataset.range;
+        rangeButtons.forEach(item => item.classList.toggle('active', item === btn));
+        render();
+      });
+    });
+    [q, theme, relevance, source, showLow].forEach(el => el.addEventListener('input', render));
     render();
   </script>
 </body>
